@@ -6,10 +6,10 @@ import (
 )
 
 func Migrate() error {
-	if err := database.Connection().AutoMigrate(&entities.Asset{}); err != nil {
+	if err := database.Connection().AutoMigrate(&entities.Discovery{}); err != nil {
 		return err
 	}
-	if err := database.Connection().AutoMigrate(&entities.Package{}); err != nil {
+	if err := database.Connection().AutoMigrate(&entities.Asset{}); err != nil {
 		return err
 	}
 	if err := database.Connection().AutoMigrate(&entities.Profile{}); err != nil {

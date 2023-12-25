@@ -22,3 +22,6 @@ go.work
 
 # Environment file
 .env
+
+# So directory
+wmi/

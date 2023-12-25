@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/limanmys/inventory-server/app/controllers/assets"
 	"github.com/limanmys/inventory-server/app/controllers/discoveries"
 	"github.com/limanmys/inventory-server/app/controllers/profiles"
 )
@@ -31,5 +32,12 @@ func Routes(app *fiber.App) {
 		discoveryGroup.Get("/", discoveries.Index)
 		// Delete record
 		discoveryGroup.Delete("/:id", discoveries.Delete)
+	}
+
+	// Asset routes
+	assetGroup := app.Group("/assets")
+	{
+		// Index records
+		assetGroup.Get("/", assets.Index)
 	}
 }

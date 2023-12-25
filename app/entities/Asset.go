@@ -9,8 +9,8 @@ type Asset struct {
 	SerialNumber string `json:"serial_number"`
 	Vendor       string `json:"vendor"`
 	Model        string `json:"model"`
-	// Packages     []Package `json:"packages"`
 
 	DiscoveryID *uuid.UUID `json:"discovery_id"`
 	Discovery   *Discovery `json:"discovery"`
+	Packages    []*Package `json:"packages" gorm:"many2many:asset_packages"`
 }

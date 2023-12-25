@@ -109,9 +109,13 @@ func Start(discovery entities.Discovery) {
 			// If package does not exists
 			if count == 0 {
 				database.Connection().Create(&pkg)
+			} else {
+				database.Connection().Model(&entities.Package{}).
+					Where("name = ? and version = ?", pkg.Name, pkg.Version).First(&pkg)
 			}
 			assetPackages = append(assetPackages, pkg)
 		}
+
 		// Replace packages
 		asset.Packages = assetPackages
 		database.Connection().Model(&asset).Association("Packages").Replace(&assetPackages)

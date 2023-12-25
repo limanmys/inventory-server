@@ -10,6 +10,7 @@ require (
 	github.com/google/uuid v1.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mattn/go-sqlite3 v1.14.19
+	github.com/rainycape/dl v0.0.0-20151222075243-1b01514224a1
 	github.com/zekiahmetbayar/go-random v0.0.0-20221005103900-1d232ec5eff4
 	gorm.io/driver/mysql v1.5.2
 	gorm.io/driver/postgres v1.5.4

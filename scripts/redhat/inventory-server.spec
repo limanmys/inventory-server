@@ -2,7 +2,6 @@ Name: inventory-server
 Version: %VERSION%
 Release: 0
 License: MIT
-Requires: 
 Prefix: /opt
 Summary: inventory server.
 Group: Applications/System

@@ -18,7 +18,7 @@ func Index(c *fiber.Ctx) error {
 		Joins("inner join assets on assets.id = ap.asset_id").
 		Group("packages.name")
 
-	db := database.Connection().Debug().Table("(?) as t1", sub_query)
+	db := database.Connection().Table("(?) as t1", sub_query)
 
 	// Apply search, if exists
 	if c.Query("search") != "" {

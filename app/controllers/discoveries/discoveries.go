@@ -28,7 +28,7 @@ func Create(c *fiber.Ctx) error {
 	}
 
 	// Set discovery status
-	payload.DiscoveryStatus = entities.DiscoveryStatusPending
+	payload.Status = entities.StatusPending
 	payload.Message = "Discovery pending."
 
 	// Create record on database

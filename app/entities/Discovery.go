@@ -5,13 +5,13 @@ import (
 	"github.com/limanmys/inventory-server/internal/database"
 )
 
-type DiscoveryStatus string
+type Status string
 
 var (
-	DiscoveryStatusPending    DiscoveryStatus = "pending"
-	DiscoveryStatusInProgress DiscoveryStatus = "in_progress"
-	DiscoveryStatusDone       DiscoveryStatus = "done"
-	DiscoveryStatusError      DiscoveryStatus = "error"
+	StatusPending    Status = "pending"
+	StatusInProgress Status = "in_progress"
+	StatusDone       Status = "done"
+	StatusError      Status = "error"
 )
 
 type Discovery struct {
@@ -20,12 +20,12 @@ type Discovery struct {
 	ProfileID *uuid.UUID `json:"profile_id" validate:"required"`
 	Profile   *Profile   `json:"profile"`
 
-	DiscoveryStatus DiscoveryStatus `json:"discovery_status" gorm:"default:pending"`
-	Message         string          `json:"message"`
+	Status  Status `json:"discovery_status" gorm:"default:pending"`
+	Message string `json:"message"`
 }
 
-func (d *Discovery) UpdateStatus(status DiscoveryStatus, message string) {
-	d.DiscoveryStatus = status
+func (d *Discovery) UpdateStatus(status Status, message string) {
+	d.Status = status
 	d.Message = message
 	database.Connection().Model(d).Save(d)
 }

@@ -16,7 +16,7 @@ func Start(discovery entities.Discovery) {
 	// Open c-shared library
 	lib, err := dl.Open("./wmi/wmi.so", 0)
 	if err != nil {
-		discovery.UpdateStatus(entities.DiscoveryStatusError, "error when opening lib, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when opening lib, err: "+err.Error())
 		return
 	}
 
@@ -29,24 +29,24 @@ func Start(discovery entities.Discovery) {
 	// Open symbol
 	err = lib.Sym("get", &get)
 	if err != nil {
-		discovery.UpdateStatus(entities.DiscoveryStatusError, "error when getting symbol, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when getting symbol, err: "+err.Error())
 		return
 	}
 
 	// Update discovery status
-	discovery.UpdateStatus(entities.DiscoveryStatusInProgress, "Discovery in progress.")
+	discovery.UpdateStatus(entities.StatusInProgress, "Discovery in progress.")
 
 	// Get profile
 	var profile entities.Profile
 	if err := database.Connection().Model(&profile).Where("id = ?", discovery.ProfileID).First(&profile).Error; err != nil {
-		discovery.UpdateStatus(entities.DiscoveryStatusError, "error when getting profile, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when getting profile, err: "+err.Error())
 		return
 	}
 
 	// Decrypt profile
 	profile, err = aes.DecryptProfile(profile)
 	if err != nil {
-		discovery.UpdateStatus(entities.DiscoveryStatusError, "error when decrypting profile, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when decrypting profile, err: "+err.Error())
 		return
 	}
 
@@ -57,28 +57,28 @@ func Start(discovery entities.Discovery) {
 		Password: profile.Password,
 	})
 	if err != nil {
-		discovery.UpdateStatus(entities.DiscoveryStatusError, "error when running symbol, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when running symbol, err: "+err.Error())
 		return
 	}
 
 	// Unmarshal discovery result
 	var discoveryResult entities.Result
 	if err := json.Unmarshal([]byte(C.GoString(get(C.CString(string(result))))), &discoveryResult); err != nil {
-		discovery.UpdateStatus(entities.DiscoveryStatusError, "error when unmarshalling result, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when unmarshalling result, err: "+err.Error())
 		return
 	}
 
 	// Decode b64 data
 	data, err := base64.StdEncoding.DecodeString(discoveryResult.Output.(string))
 	if err != nil {
-		discovery.UpdateStatus(entities.DiscoveryStatusError, "error when decoding result, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when decoding result, err: "+err.Error())
 		return
 	}
 
 	// Unmarshal assets
 	var assets []entities.Asset
 	if err := json.Unmarshal(data, &assets); err != nil {
-		discovery.UpdateStatus(entities.DiscoveryStatusError, "error when unmarshalling assets, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when unmarshalling assets, err: "+err.Error())
 		return
 	}
 
@@ -139,5 +139,5 @@ func Start(discovery entities.Discovery) {
 	}
 
 	// Update discovery status
-	discovery.UpdateStatus(entities.DiscoveryStatusDone, "Discovery completed successfully.")
+	discovery.UpdateStatus(entities.StatusDone, "Discovery completed successfully.")
 }

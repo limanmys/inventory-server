@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/limanmys/inventory-server/app/controllers/assets"
 	"github.com/limanmys/inventory-server/app/controllers/discoveries"
+	"github.com/limanmys/inventory-server/app/controllers/packages"
 	"github.com/limanmys/inventory-server/app/controllers/profiles"
 )
 
@@ -41,5 +42,12 @@ func Routes(app *fiber.App) {
 		assetGroup.Get("/", assets.Index)
 		// Asset packages
 		assetGroup.Get("/packages/:id", assets.AssetPackages)
+	}
+
+	// Package routes
+	packageGroup := app.Group("/packages")
+	{
+		// Index records
+		packageGroup.Get("/", packages.Index)
 	}
 }

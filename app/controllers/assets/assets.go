@@ -41,6 +41,11 @@ func AssetPackages(c *fiber.Ctx) error {
 		Joins("left join asset_packages on asset_packages.package_id = packages.id").
 		Where("asset_id = ?", uuid)
 
+	// Apply search, if exists
+	if c.Query("search") != "" {
+		search.Search(c.Query("search"), db)
+	}
+
 	// Get data
 	var packages []entities.Package
 	page, err := paginator.New(db, c).Paginate(&packages)

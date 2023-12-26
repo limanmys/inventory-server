@@ -1,0 +1,101 @@
+name: Inventory Server Deployment Yaml
+on:
+  push:
+    branches-ignore:
+      - 'releases/*'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [sync]
+
+jobs:
+  naming: 
+    runs-on: ubuntu-20.04
+    steps:
+    - id: naming
+      run: |
+        [ "$GITHUB_REF" == "refs/heads/master" ] && export PRERELEASE=false || export PRERELEASE=true
+        [ "$GITHUB_REF" == "refs/heads/master" ] && export NAME="Release ${{ github.run_number }}" || export NAME="${GITHUB_REF#refs/heads/} release ${{ github.run_number }}"
+        [ "$GITHUB_REF" == "refs/heads/master" ] && export TAG_NAME="release.${{ github.run_number }}" || export TAG_NAME="${GITHUB_REF#refs/heads/}.release.${{ github.run_number }}"
+        echo "::set-output name=prerelease::${PRERELEASE}"
+        echo "::set-output name=name::${NAME}"
+        echo "::set-output name=tag_name::${TAG_NAME}"
+    outputs:
+      prerelease: ${{ steps.naming.outputs.prerelease }}
+      name: ${{ steps.naming.outputs.name }}
+      tag_name: ${{ steps.naming.outputs.tag_name }}
+  build:
+    needs: naming
+    runs-on: ubuntu-20.04
+    steps:
+    - uses: actions/checkout@master
+    - name: Get latest release of inventory-wmi
+      uses: i3h/download-release-asset@v1
+      with:
+        owner: "limanmys"
+        repo: "inventory-wmi"
+        tag: "latest"
+        file: "wmi.zip"
+        path: "./"
+        token: ${{ secrets.TOKEN }}
+
+    - name: Getting Go Binaries
+      uses: actions/setup-go@v3
+      with:
+          go-version: '1.21'
+    - name: Build
+      run: |
+          go mod tidy
+          cd cmd/server && go get -u
+          cd ../..
+
+          CGO_ENABLED=1 go build -gcflags="all=-N -l" -o inventory-server cmd/server/main.go
+
+    - name: Naming
+      run: |
+        sudo apt install unzip
+        unzip wmi.zip
+        rm *.zip
+
+    - name: Build .deb & .rpm Packages
+      run: |
+        sudo apt install rpm -y
+
+        TMP_DIR=/tmp/inventory-server-build
+        DEBIAN_PATH=$TMP_DIR/DEBIAN
+        SERVER_BIN_PATH=$TMP_DIR/opt/inventory-server
+
+        rm -rf $TMP_DIR
+
+        mkdir $TMP_DIR
+        mkdir $DEBIAN_PATH
+        mkdir -p $SERVER_BIN_PATH
+        mkdir -p $SERVER_BIN_PATH/reports
+
+        cp ./scripts/debian/control $DEBIAN_PATH/control
+        sed -i s/%VERSION%/${{ github.run_number }}/g $DEBIAN_PATH/control
+
+        cp ./scripts/debian/postinst $DEBIAN_PATH/postinst
+        chmod 775 $DEBIAN_PATH/postinst
+
+        cp inventory-server $SERVER_BIN_PATH/inventory-server
+        cp .env.example $SERVER_BIN_PATH/.env.example
+
+        dpkg-deb --build $TMP_DIR
+        mv /tmp/inventory-server-build.deb /tmp/inventory-server-${{ github.run_number }}-x64.deb
+        
+        rm -rf $DEBIAN_PATH
+        sed -i s/%VERSION%/${{ github.run_number }}/g scripts/redhat/inventory-server.spec
+        rpmbuild -ba scripts/redhat/inventory-server.spec --define "_app_dir $TMP_DIR" --define "_rpmdir /tmp" --define "_rpmfilename inventory-server-${{ github.run_number }}-x64.rpm"
+    
+    - name: Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+      with:
+          files: |
+            /tmp/inventory-server-${{ github.run_number }}-x64.deb
+            /tmp/inventory-server-${{ github.run_number }}-x64.rpm
+          name: "${{ needs.naming.outputs.name }}"
+          tag_name: "${{ needs.naming.outputs.tag_name }}"
+          prerelease: ${{ needs.naming.outputs.prerelease }}

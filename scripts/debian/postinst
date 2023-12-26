@@ -1,0 +1,27 @@
+if [ -f "/usr/lib/systemd/system/inventory-server.service" ]; then
+    rm -rf /usr/lib/systemd/system/inventory-server.service  2>/dev/null || true
+    systemctl disable inventory-server.service 2>/dev/null || true
+    systemctl stop inventory-server.service 2>/dev/null || true
+    systemctl daemon-reload 2>/dev/null || true
+fi
+
+echo """
+[Unit]
+Description=Inventory Server
+[Service]
+Type=simple
+WorkingDirectory=/opt/inventory-server
+ExecStart=/opt/inventory-server/inventory-server
+Restart=always
+RestartSec=10
+SyslogIdentifier=inventory
+KillSignal=SIGINT
+User=root
+Group=root
+[Install]
+WantedBy=multi-user.target
+    """ > /etc/systemd/system/inventory-server.service
+
+systemctl daemon-reload
+systemctl enable inventory-server.service
+systemctl restart inventory-server.service

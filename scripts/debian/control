@@ -1,0 +1,7 @@
+Package: inventory-server
+Version: %VERSION%
+Section: utils
+Architecture: amd64
+Priority: optional
+Maintainer: Zeki Ahmet Bayar <zeki@liman.dev>
+Description: inventory server.

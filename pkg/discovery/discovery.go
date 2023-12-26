@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 
 	"github.com/limanmys/inventory-server/app/entities"
+	"github.com/limanmys/inventory-server/internal/constants"
 	"github.com/limanmys/inventory-server/internal/database"
 	"github.com/limanmys/inventory-server/pkg/aes"
 	"github.com/rainycape/dl"
@@ -14,7 +15,7 @@ import (
 
 func Start(discovery entities.Discovery) {
 	// Open c-shared library
-	lib, err := dl.Open("./wmi/wmi.so", 0)
+	lib, err := dl.Open(constants.WMI_SO_PATH, 0)
 	if err != nil {
 		discovery.UpdateStatus(entities.StatusError, "error when opening lib, err: "+err.Error())
 		return

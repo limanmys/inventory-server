@@ -70,7 +70,8 @@ jobs:
         mkdir $DEBIAN_PATH
         mkdir -p $SERVER_BIN_PATH
         mkdir -p $SERVER_BIN_PATH/reports
-        mv wmi $SERVER_BIN_PATH/
+        mkdir -p $SERVER_BIN_PATH/wmi
+        mv wmi.so $SERVER_BIN_PATH/wmi/
 
         cp ./scripts/debian/control $DEBIAN_PATH/control
         sed -i s/%VERSION%/${{ github.run_number }}/g $DEBIAN_PATH/control

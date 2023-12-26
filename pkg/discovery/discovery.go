@@ -9,6 +9,7 @@ import (
 	"github.com/limanmys/inventory-server/internal/database"
 	"github.com/limanmys/inventory-server/pkg/aes"
 	"github.com/rainycape/dl"
+	"gorm.io/gorm/clause"
 )
 
 func Start(discovery entities.Discovery) {
@@ -81,43 +82,59 @@ func Start(discovery entities.Discovery) {
 		return
 	}
 
+	// Set count for later use
 	var count int64
 	// Create assets
 	for _, asset := range assets {
+		// Get asset packages temporarily
+		var temporaryPackages = asset.Packages
+		asset.Packages = nil
+
 		// Set discovery id
 		asset.DiscoveryID = discovery.ID
 
-		// Check is asset exists
-		database.Connection().
-			Model(&entities.Asset{}).Where("address = ?", asset.Address).Count(&count)
-		if count > 0 {
-			// If asset exists, update
-			database.Connection().
-				Model(&entities.Asset{}).Where("address = ?", asset.Address).Updates(&asset)
+		// Check is asset exists on storage
+		database.Connection().Model(&entities.Asset{}).
+			Where("address = ?", asset.Address).Count(&count)
+
+		// If asset does not exists
+		if count == 0 {
+			database.Connection().Clauses(clause.Returning{}).Create(&asset)
 		} else {
-			// Create asset
-			database.Connection().Create(&asset)
+			// Create temporary asset
+			var temporaryAsset entities.Asset
+
+			// Update asset with new informations
+			database.Connection().Model(&entities.Asset{}).
+				Where("address = ?", asset.Address).First(&temporaryAsset)
+
+			// Update asset
+			database.Connection().Model(&temporaryAsset).Updates(&asset)
+			asset.ID = temporaryAsset.ID
 		}
 
-		// Create packages
+		// Create empty asset packages array for relations
 		var assetPackages []*entities.Package
-		for _, pkg := range asset.Packages {
-			database.Connection().
-				Model(&entities.Package{}).
+
+		// Create or find package
+		for _, pkg := range temporaryPackages {
+			// Check is package exists on storage
+			database.Connection().Model(&entities.Package{}).
 				Where("name = ? and version = ?", pkg.Name, pkg.Version).Count(&count)
 
 			// If package does not exists
 			if count == 0 {
-				database.Connection().Create(&pkg)
+				database.Connection().Clauses(clause.Returning{}).Create(&pkg)
 			} else {
+				// Find package
 				database.Connection().Model(&entities.Package{}).
 					Where("name = ? and version = ?", pkg.Name, pkg.Version).First(&pkg)
 			}
+			// Append package to asset packages
 			assetPackages = append(assetPackages, pkg)
 		}
 
-		// Replace packages
-		asset.Packages = assetPackages
+		// Create relations
 		database.Connection().Model(&asset).Association("Packages").Replace(&assetPackages)
 	}
 

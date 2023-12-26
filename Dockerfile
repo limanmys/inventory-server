@@ -14,7 +14,7 @@ COPY . .
 
 RUN GOOS=linux CGO_ENABLED=1 go build -ldflags="-s -w" -o /opt/build/inventory-server cmd/server/main.go
 
-COPY start.sh /tmp/start.sh
+COPY scripts/start.sh /tmp/start.sh
 
 RUN ["chmod", "755", "/tmp/start.sh"]
 

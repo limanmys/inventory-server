@@ -29,6 +29,26 @@ func Index(c *fiber.Ctx) error {
 	return c.JSON(page)
 }
 
+// Show, gets a single asset
+func Show(c *fiber.Ctx) error {
+	// Check uuid validity
+	uuid, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return err
+	}
+
+	// Set result
+	var asset entities.Asset
+
+	// Set query
+	if err := database.Connection().
+		Model(&asset).First(&asset, "id = ?", uuid).Error; err != nil {
+		return err
+	}
+
+	return c.JSON(asset)
+}
+
 // AssetPackages, returns asset's packages
 func AssetPackages(c *fiber.Ctx) error {
 	// Check uuid validity

@@ -42,6 +42,8 @@ func Routes(app *fiber.App) {
 	{
 		// Index records
 		assetGroup.Get("/", assets.Index)
+		// Show record
+		assetGroup.Get("/:id", assets.Show)
 		// Asset packages
 		assetGroup.Get("/packages/:id", assets.AssetPackages)
 	}

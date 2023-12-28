@@ -106,7 +106,7 @@ func Delete(c *fiber.Ctx) error {
 	}
 
 	// Delete record
-	if err := database.Connection().
+	if err := database.Connection().Unscoped().
 		Where("id = ?", uuid).Delete(&entities.Profile{}).Error; err != nil {
 		return err
 	}

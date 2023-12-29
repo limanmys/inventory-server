@@ -12,7 +12,14 @@ import (
 // Index, Lists all records
 func Index(c *fiber.Ctx) error {
 	// Set query
-	db := database.Connection().Model(&entities.Asset{})
+	sub_query := database.Connection().
+		Model(&entities.Asset{}).
+		Select("assets.*", "count(*) as package_count").
+		Joins("inner join asset_packages ap on ap.asset_id = assets.id").
+		Joins("inner join packages on ap.package_id = packages.id").
+		Group("assets.id").Order("package_count desc")
+
+	db := database.Connection().Table("(?) as t1", sub_query)
 
 	// Apply search, if exists
 	if c.Query("search") != "" {
@@ -20,7 +27,7 @@ func Index(c *fiber.Ctx) error {
 	}
 
 	// Get data
-	var assets []entities.Asset
+	var assets []map[string]interface{}
 	page, err := paginator.New(db, c).Paginate(&assets)
 	if err != nil {
 		return err

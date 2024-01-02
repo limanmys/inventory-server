@@ -4,4 +4,5 @@ Section: utils
 Architecture: amd64
 Priority: optional
 Maintainer: Zeki Ahmet Bayar <zeki@liman.dev>
+Depends: libhdb9-heimdal libgssapi3-heimdal
 Description: inventory server.

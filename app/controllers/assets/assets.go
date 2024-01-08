@@ -14,7 +14,7 @@ func Index(c *fiber.Ctx) error {
 	// Set query
 	sub_query := database.Connection().
 		Model(&entities.Asset{}).
-		Select("assets.*", "count(*) as package_count").
+		Select("assets.*", "count(packages.name) as package_count").
 		Joins("left join asset_packages ap on ap.asset_id = assets.id").
 		Joins("left join packages on ap.package_id = packages.id").
 		Group("assets.id").Order("package_count desc")

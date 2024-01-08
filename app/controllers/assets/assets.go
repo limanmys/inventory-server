@@ -64,9 +64,11 @@ func AssetPackages(c *fiber.Ctx) error {
 		return err
 	}
 
-	db := database.Connection().Model(&entities.Package{}).
+	var count int64
+	db := database.Connection().
+		Model(&entities.Package{}).
 		Joins("left join asset_packages on asset_packages.package_id = packages.id").
-		Where("asset_id = ?", uuid)
+		Where("asset_id = ?", uuid).Count(&count)
 
 	// Apply search, if exists
 	if c.Query("search") != "" {

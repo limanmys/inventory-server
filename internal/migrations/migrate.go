@@ -6,6 +6,9 @@ import (
 )
 
 func Migrate() error {
+	if err := database.Connection().AutoMigrate(&entities.AlternativePackage{}); err != nil {
+		return err
+	}
 	if err := database.Connection().AutoMigrate(&entities.Discovery{}); err != nil {
 		return err
 	}

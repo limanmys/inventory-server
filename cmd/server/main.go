@@ -12,13 +12,20 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/limanmys/inventory-server/app/routes"
 	"github.com/limanmys/inventory-server/internal/migrations"
+	"github.com/limanmys/inventory-server/internal/seeds"
 	"github.com/limanmys/inventory-server/internal/server"
 )
 
 func main() {
 	// Migrate tables
 	if !fiber.IsChild() {
-		migrations.Migrate()
+		//Migrate tables
+		if err := migrations.Migrate(); err != nil {
+			log.Println("error when migrating tables, ", err.Error())
+		}
+
+		// Seed alternative packages
+		seeds.Init()
 	}
 
 	// Create Fiber App

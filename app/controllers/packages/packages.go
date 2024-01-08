@@ -8,6 +8,7 @@ import (
 	"github.com/limanmys/inventory-server/internal/search"
 	"github.com/limanmys/inventory-server/pkg/jobs"
 	"github.com/limanmys/inventory-server/pkg/reporter"
+	"gorm.io/gorm/clause"
 )
 
 // Index, returns asset's packages
@@ -15,12 +16,12 @@ func Index(c *fiber.Ctx) error {
 	// Build sql query
 	sub_query := database.Connection().
 		Model(&entities.Package{}).
-		Select("packages.name", "count(*)", "null as updated_at", "null as deleted_at").
+		Select("packages.name", "count(*)", "null as updated_at", "null as deleted_at", "alternative_package_id").
 		Joins("inner join asset_packages ap on ap.package_id = packages.id").
 		Joins("inner join assets on assets.id = ap.asset_id").
-		Group("packages.name").Order("count desc")
+		Group("packages.name").Group("alternative_package_id").Order("count desc")
 
-	db := database.Connection().Table("(?) as t1", sub_query)
+	db := database.Connection().Preload(clause.Associations).Table("(?) as t1", sub_query)
 
 	// Apply search, if exists
 	if c.Query("search") != "" {
@@ -28,7 +29,7 @@ func Index(c *fiber.Ctx) error {
 	}
 
 	// Get data
-	var packages []map[string]interface{}
+	var packages []entities.Package
 	page, err := paginator.New(db, c).Paginate(&packages)
 	if err != nil {
 		return err

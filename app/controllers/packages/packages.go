@@ -11,6 +11,11 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+type PackageWithAssetCount struct {
+	entities.Package
+	Count int `json:"count"`
+}
+
 // Index, returns asset's packages
 func Index(c *fiber.Ctx) error {
 	// Build sql query
@@ -29,7 +34,7 @@ func Index(c *fiber.Ctx) error {
 	}
 
 	// Get data
-	var packages []entities.Package
+	var packages []PackageWithAssetCount
 	page, err := paginator.New(db, c).Paginate(&packages)
 	if err != nil {
 		return err

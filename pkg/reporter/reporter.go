@@ -25,7 +25,7 @@ func CreatePackageReport(job *entities.Job, db *gorm.DB, columns []string) {
 	// Build report body
 	body := map[string]interface{}{
 		"date":             time.Now().Format("01-02-2006 15:04:05"),
-		"header":           "Inventory Server | Packages Report",
+		"header":           "Packages Report",
 		"readable_columns": humanize(columns),
 		"template_id":      "template.docx",
 		"columns":          columns,

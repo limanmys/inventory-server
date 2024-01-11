@@ -53,13 +53,17 @@ func Report(c *fiber.Ctx) error {
 	// Build query
 	db := database.Connection().
 		Model(&entities.Package{}).
-		Select("packages.name", "count(*)").
+		Select(
+			"packages.name",
+			"count(*)",
+			"coalesce(alternative_packages.name, '-') as alternative_package").
 		Joins("inner join asset_packages ap on ap.package_id = packages.id").
 		Joins("inner join assets on assets.id = ap.asset_id").
-		Group("packages.name").Order("count desc")
+		Joins("left join alternative_packages on alternative_packages.id = packages.alternative_package_id ").
+		Group("packages.name, alternative_packages.name").Order("count desc")
 
 	// Create report as go routine
-	go reporter.CreatePackageReport(job, db, []string{"name", "count"})
+	go reporter.CreatePackageReport(job, db, []string{"name", "count", "alternative_package"})
 
 	return c.JSON(fiber.Map{"id": job.ID.String()})
 }

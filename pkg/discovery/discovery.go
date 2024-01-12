@@ -4,6 +4,7 @@ import "C"
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 
 	"github.com/limanmys/inventory-server/app/entities"
 	"github.com/limanmys/inventory-server/internal/constants"
@@ -125,12 +126,24 @@ func Start(discovery entities.Discovery) {
 
 			// If package does not exists
 			if count == 0 {
+
+				// Check package has alternative
+				var alternative entities.AlternativePackage
+				database.Connection().Model(&entities.AlternativePackage{}).
+					Where("LOWER(package_name) LIKE LOWER(?)", fmt.Sprintf("%%%s%%", pkg.Name)).
+					First(&alternative)
+
+				if alternative.ID != nil {
+					pkg.AlternativePackageID = alternative.ID
+				}
+
 				database.Connection().Clauses(clause.Returning{}).Create(&pkg)
 			} else {
 				// Find package
 				database.Connection().Model(&entities.Package{}).
 					Where("name = ? and version = ?", pkg.Name, pkg.Version).First(&pkg)
 			}
+
 			// Append package to asset packages
 			assetPackages = append(assetPackages, pkg)
 		}

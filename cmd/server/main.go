@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -12,13 +13,23 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/limanmys/inventory-server/app/routes"
 	"github.com/limanmys/inventory-server/internal/migrations"
+	"github.com/limanmys/inventory-server/internal/seeds"
 	"github.com/limanmys/inventory-server/internal/server"
 )
 
 func main() {
+	runType := flag.String("type", "admin", "Server's run type.")
+	flag.Parse()
+
 	// Migrate tables
 	if !fiber.IsChild() {
-		migrations.Migrate()
+		//Migrate tables
+		if err := migrations.Migrate(); err != nil {
+			log.Println("error when migrating tables, ", err.Error())
+		}
+
+		// Seed alternative packages
+		seeds.Init()
 	}
 
 	// Create Fiber App
@@ -39,6 +50,11 @@ func main() {
 	// Mount routes
 	routes.Routes(app)
 
-	// Start server
-	log.Fatal(app.Listen("127.0.0.1:7806"))
+	if *runType == "admin" {
+		// Start server
+		log.Fatal(app.Listen("127.0.0.1:7806"))
+	} else if *runType == "test" {
+		// Start test server
+		log.Fatal(app.Listen("0.0.0.0:7825"))
+	}
 }

@@ -29,11 +29,11 @@ fi
 
 echo """
 [Unit]
-Description=Inventory Server
+Description=Inventory Server (%I)
 [Service]
 Type=simple
 WorkingDirectory=/opt/inventory-server
-ExecStart=/opt/inventory-server/inventory-server
+ExecStart=/opt/inventory-server/inventory-server -type=%i
 Restart=always
 RestartSec=10
 SyslogIdentifier=inventory
@@ -42,11 +42,11 @@ User=root
 Group=root
 [Install]
 WantedBy=multi-user.target
-    """ > /etc/systemd/system/inventory-server.service
+    """ > /etc/systemd/system/inventory-server@.service
 
 systemctl daemon-reload
-systemctl enable inventory-server.service
-systemctl restart inventory-server.service
+systemctl enable inventory-server@admin.service
+systemctl restart inventory-server@admin.service
 
 %clean
 

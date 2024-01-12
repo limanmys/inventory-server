@@ -24,7 +24,7 @@ func initializePostgres() *gorm.DB {
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
-		log.Fatalf("plase set valid credentials for database connection")
+		log.Fatalf("please set valid credentials for database connection")
 		return nil
 	}
 

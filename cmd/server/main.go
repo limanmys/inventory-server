@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -17,6 +18,9 @@ import (
 )
 
 func main() {
+	runType := flag.String("type", "admin", "Server's run type.")
+	flag.Parse()
+
 	// Migrate tables
 	if !fiber.IsChild() {
 		//Migrate tables
@@ -46,6 +50,11 @@ func main() {
 	// Mount routes
 	routes.Routes(app)
 
-	// Start server
-	log.Fatal(app.Listen("127.0.0.1:7806"))
+	if *runType == "admin" {
+		// Start server
+		log.Fatal(app.Listen("127.0.0.1:7806"))
+	} else if *runType == "test" {
+		// Start test server
+		log.Fatal(app.Listen("0.0.0.0:7825"))
+	}
 }

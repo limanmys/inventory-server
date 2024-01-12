@@ -2,6 +2,7 @@ package database
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"gorm.io/driver/postgres"
@@ -23,6 +24,7 @@ func initializePostgres() *gorm.DB {
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
+		log.Fatalf("plase set valid credentials for database connection")
 		return nil
 	}
 

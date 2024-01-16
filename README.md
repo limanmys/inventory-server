@@ -58,7 +58,7 @@ DB_PASS= # Database user's password
 REPORT_ENGINE_URL=localhost:8001 # Report engine URL. 
 ```
 
-For Report Engine [see here](https://github.com/limanmys/report-engine).
+For Report Engine [see here](https://github.com/limanmys/fastapi-report-engine).
 
 Finally, the service must be restarted.
 
@@ -71,3 +71,10 @@ To make sure it works correctly :
 ```
 sudo systemctl status inventory-server
 ```
+
+### Frontend App (Liman) [see here](https://github.com/limanmys/liman-inventory).
+
+![Liman Extension Image-White](images/image.png)
+
+
+![Liman Extension Image-Black](images/image-1.png)

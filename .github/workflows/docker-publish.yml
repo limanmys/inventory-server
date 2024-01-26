@@ -21,6 +21,22 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Get latest release of inventory-wmi
+        uses: i3h/download-release-asset@v1
+        with:
+          owner: "limanmys"
+          repo: "inventory-wmi"
+          tag: "latest"
+          file: "wmi.zip"
+          path: "./"
+          token: ${{ secrets.TOKEN }}
+
+      - name: Unzip Dependencies
+        run: |
+          sudo apt install unzip
+          unzip wmi.zip
+          rm *.zip
+
       - name: Get version details
         run: |
           echo "RELEASE_RUNNUMBER=$(($GITHUB_RUN_NUMBER+6))" >> $GITHUB_ENV

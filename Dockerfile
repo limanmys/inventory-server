@@ -18,9 +18,13 @@ RUN GOOS=linux CGO_ENABLED=1 go build -ldflags="-s -w" -o /opt/build/inventory-s
 
 RUN mkdir reports
 
+RUN mkdir wmi
+
+COPY ./wmi.so ./wmi
+
 COPY scripts/start.sh /tmp/start.sh
 
-RUN sed -e 's/$/ -type=test/' /tmp/start.sh
+RUN echo -n " -type=test" >> /tmp/start.sh
 
 RUN ["chmod", "755", "/tmp/start.sh"]
 

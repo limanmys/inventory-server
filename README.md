@@ -35,7 +35,7 @@ Example for postgresql,
 ```
 sudo -u postgres psql
 
-postgres=# CREATE USER inventory WITH ENCRYPTED PASSWORD '****';
+postgres=# CREATE USER inventory WITH PASSWORD '****';
 postgres=# CREATE DATABASE inventory WITH OWNER inventory;
 postgres=# \q
 ```
@@ -49,7 +49,7 @@ sudo nano /opt/inventory-server/.env
 The content should look like the following :
 
 ```
-DB_DRIVER=postgresql/mysql/sqlite # Database type
+DB_DRIVER=postgres/mysql/sqlite # Database type
 DB_HOST=10.1.1.1 # Database ip address
 DB_PORT=5432/3306 # Database port
 DB_NAME=inventory # Database name 

@@ -59,7 +59,7 @@ func Start(discovery entities.Discovery) {
 		Password: profile.Password,
 	})
 	if err != nil {
-		discovery.UpdateStatus(entities.StatusError, "error when running symbol, err: "+err.Error())
+		discovery.UpdateStatus(entities.StatusError, "error when marshalling arguments, err: "+err.Error())
 		return
 	}
 

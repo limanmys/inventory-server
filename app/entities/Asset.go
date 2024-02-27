@@ -7,6 +7,7 @@ type Asset struct {
 	Hostname     string `json:"hostname"`
 	Address      string `json:"address"`
 	SerialNumber string `json:"serial_number"`
+	BiosVersion  string `json:"bios_version"`
 	Vendor       string `json:"vendor"`
 	Model        string `json:"model"`
 

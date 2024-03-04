@@ -63,13 +63,13 @@ For Report Engine [see here](https://github.com/limanmys/fastapi-report-engine).
 Finally, the service must be restarted.
 
 ```
-sudo systemctl restart inventory-server
+sudo systemctl restart inventory-server@admin
 ```
 
 To make sure it works correctly :
 
 ```
-sudo systemctl status inventory-server
+sudo systemctl status inventory-server@admin
 ```
 
 ### Frontend App (Liman) [see here](https://github.com/limanmys/liman-inventory).

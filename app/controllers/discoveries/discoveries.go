@@ -139,7 +139,7 @@ func ReadLatestLog(c *fiber.Ctx) error {
 	// Get logs
 	var log entities.DiscoveryLogs
 	if err := database.Connection().Model(&entities.DiscoveryLogs{}).
-		Where("id = ?", uuid).Order("updated_at DESC").First(&log).Error; err != nil {
+		Where("discovery_id = ?", uuid).Order("updated_at DESC").First(&log).Error; err != nil {
 		return err
 	}
 
@@ -149,5 +149,5 @@ func ReadLatestLog(c *fiber.Ctx) error {
 		return err
 	}
 
-	return c.SendString(string(content))
+	return c.JSON(fiber.Map{"content": string(content)})
 }

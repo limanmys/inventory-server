@@ -9,4 +9,5 @@ type Arguments struct {
 	IPRange  string `json:"ip_range"`
 	Username string `json:"string"`
 	Password string `json:"password"`
+	RunID    string `json:"run_id"`
 }

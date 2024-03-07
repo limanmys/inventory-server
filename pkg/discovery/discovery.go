@@ -14,7 +14,7 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func Start(discovery entities.Discovery) {
+func Start(discovery entities.Discovery, run_id string) {
 	// Open c-shared library
 	lib, err := dl.Open(constants.WMI_SO_PATH, 0)
 	if err != nil {
@@ -57,6 +57,7 @@ func Start(discovery entities.Discovery) {
 		IPRange:  discovery.IPRange,
 		Username: profile.Username,
 		Password: profile.Password,
+		RunID:    run_id,
 	})
 	if err != nil {
 		discovery.UpdateStatus(entities.StatusError, "error when marshalling arguments, err: "+err.Error())

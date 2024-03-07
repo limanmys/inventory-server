@@ -71,6 +71,7 @@ jobs:
         mkdir -p $SERVER_BIN_PATH
         mkdir -p $SERVER_BIN_PATH/reports
         mkdir -p $SERVER_BIN_PATH/wmi
+        mkdir -p $SERVER_BIN_PATH/logs
         mkdir -p $SERVER_BIN_PATH/storage
         mv wmi.so $SERVER_BIN_PATH/wmi/
         mv storage/alternatives.csv $SERVER_BIN_PATH/storage/

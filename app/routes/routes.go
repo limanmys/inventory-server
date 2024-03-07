@@ -27,6 +27,8 @@ func Routes(app *fiber.App) {
 	// Discovery routes
 	discoveryGroup := app.Group("/discoveries")
 	{
+		// Read latest log
+		discoveryGroup.Get("/logs/:id", discoveries.ReadLatestLog)
 		// Create record
 		discoveryGroup.Post("/", discoveries.Create)
 		// Run discovery

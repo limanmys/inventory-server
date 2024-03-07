@@ -29,3 +29,10 @@ func (d *Discovery) UpdateStatus(status Status, message string) {
 	d.Message = message
 	database.Connection().Model(d).Save(d)
 }
+
+type DiscoveryLogs struct {
+	Base
+	DiscoveryID *uuid.UUID `json:"discovery_id"`
+	Discovery   *Discovery `json:"discovery"`
+	Filename    string     `json:"filename"`
+}

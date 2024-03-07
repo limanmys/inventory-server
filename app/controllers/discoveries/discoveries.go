@@ -1,9 +1,13 @@
 package discoveries
 
 import (
+	"os"
+	"path"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/limanmys/inventory-server/app/entities"
+	"github.com/limanmys/inventory-server/internal/constants"
 	"github.com/limanmys/inventory-server/internal/database"
 	"github.com/limanmys/inventory-server/internal/paginator"
 	"github.com/limanmys/inventory-server/internal/search"
@@ -36,8 +40,19 @@ func Create(c *fiber.Ctx) error {
 		return err
 	}
 
+	// Set run id
+	runID := uuid.New().String()
+
+	// Create discovery logs record
+	if err := database.Connection().Create(&entities.DiscoveryLogs{
+		DiscoveryID: payload.ID,
+		Filename:    runID,
+	}).Error; err != nil {
+		return err
+	}
+
 	// Start discovery
-	go discovery.Start(payload)
+	go discovery.Start(payload, runID)
 
 	return c.JSON(payload)
 }
@@ -45,19 +60,30 @@ func Create(c *fiber.Ctx) error {
 // Run, runs a discovery
 func Run(c *fiber.Ctx) error {
 	// Check uuid validity
-	uuid, err := uuid.Parse(c.Params("id"))
+	uid, err := uuid.Parse(c.Params("id"))
 	if err != nil {
 		return err
 	}
 
 	// Get discovery
 	var discoveryObject entities.Discovery
-	if err := database.Connection().Model(&entities.Discovery{}).Where("id = ?", uuid).First(&discoveryObject).Error; err != nil {
+	if err := database.Connection().Model(&entities.Discovery{}).Where("id = ?", uid).First(&discoveryObject).Error; err != nil {
+		return err
+	}
+
+	// Set run id
+	runID := uuid.New().String()
+
+	// Create discovery logs record
+	if err := database.Connection().Create(&entities.DiscoveryLogs{
+		DiscoveryID: discoveryObject.ID,
+		Filename:    runID,
+	}).Error; err != nil {
 		return err
 	}
 
 	// Start discovery
-	go discovery.Start(discoveryObject)
+	go discovery.Start(discoveryObject, runID)
 
 	return c.JSON("Discovery started successfully.")
 }
@@ -100,4 +126,28 @@ func Delete(c *fiber.Ctx) error {
 	}
 
 	return c.JSON("Record deleted successfully.")
+}
+
+// ReadLog, Reads a latest log file
+func ReadLatestLog(c *fiber.Ctx) error {
+	// Check uuid validity
+	uuid, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return err
+	}
+
+	// Get logs
+	var log entities.DiscoveryLogs
+	if err := database.Connection().Model(&entities.DiscoveryLogs{}).
+		Where("id = ?", uuid).Order("updated_at DESC").First(&log).Error; err != nil {
+		return err
+	}
+
+	// Read content
+	content, err := os.ReadFile(path.Join(constants.DEFAULT_LOG_PATH, log.Filename))
+	if err != nil {
+		return err
+	}
+
+	return c.SendString(string(content))
 }

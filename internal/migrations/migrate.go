@@ -24,5 +24,8 @@ func Migrate() error {
 	if err := database.Connection().AutoMigrate(&entities.Job{}); err != nil {
 		return err
 	}
+	if err := database.Connection().AutoMigrate(&entities.DiscoveryLogs{}); err != nil {
+		return err
+	}
 	return nil
 }
